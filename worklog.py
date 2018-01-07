@@ -47,25 +47,27 @@ def view_entries(search_query=None, search_type=None):
 
     if search_type:
         if search_type == 'employee':
-            entries = entries.where((Log.first_name.contains(search_query)) | (
-                Log.last_name.contains(search_query)))
+            entries = entries.where((Log.first_name.contains(search_query)) |
+                                    (Log.last_name.contains(search_query)))
         elif search_type == 'date':
             entries = entries.where(
                 Log.timestamp.date() == search_query)
         elif search_type == 'time_spent':
             entries = entries.where(Log.time_spent.contains(search_query))
+        elif search_type == 'term':
+            entries = entries.where((Log.task_name.contains(search_query)) |
+                                    (Log.notes.contains(search_query)))
 
-    clear()
     for entry in entries:
+        clear()
         fullname = '{} {}'.format(entry.first_name, entry.last_name)
 
+        print('Date: {}'.format(entry.timestamp.date()))
         print('=' * 20)
-        print('Date: {}\n'
-              'Task Name: {}\n'
+        print('Task Name: {}\n'
               'Employee Name:{}\n'
               'Time Spent: {}\n'
-              'Notes: {}\n'.format(entry.timestamp.date(),
-                                   entry.task_name, fullname,
+              'Notes: {}\n'.format(entry.task_name, fullname,
                                    entry.time_spent, entry.notes))
         print('=' * 20)
         print('[n] Next Entry')
@@ -79,8 +81,32 @@ def view_entries(search_query=None, search_type=None):
             break
 
 
-def search_by_name():
-    '''Search by name'''
+def search_by_employee():
+    '''Search by Employee'''
+
+
+def search_by_date():
+    '''Search by Date'''
+
+
+def search_by_term():
+    '''Search by custom term'''
+
+
+def search_by_time_spent():
+    '''Search by Time Spent'''
+
+
+def add_entry():
+    '''Add Entry'''
+    name = input("Enter a name for this task: ")
+    user_fname = input("Enter your first name: ")
+    user_lname = input("Enter your last name: ")
+    task_time = input("Enter the time spent completing this task: ")
+    task_notes = input("Enter any additional notes: ")
+
+    Log.create(task_name=name, first_name=user_fname,
+               last_name=user_lname, time_spent=task_time, notes=task_notes)
 
 
 def menu_loop():
@@ -109,8 +135,15 @@ def initialize():
 
 
 MAIN_MENU = OrderedDict([
-    ('a', search_by_name),
+    ('a', add_entry),
     ('s', search_entries)
+])
+
+SEARCH_MENU = OrderedDict([
+    ('e', search_by_employee),
+    ('d', search_by_date),
+    ('t', search_by_time_spent),
+    ('m', search_by_term)
 ])
 
 if __name__ == '__main__':
