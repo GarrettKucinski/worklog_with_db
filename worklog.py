@@ -28,20 +28,19 @@ class Log(BaseModel):
     timestamp = DateTimeField(default=datetime.datetime.now)
 
 
-class Worklog:
-    pass
-
-
 def clear():
+    '''Clear the screen'''
+
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def search_entries():
     '''Search entries'''
+
     menu_loop(menu=SEARCH_MENU)
 
 
-def view_entries(entries):
+def display_entries(entries):
     '''View previous entries'''
 
     for entry in entries:
@@ -73,7 +72,7 @@ def search_by_employee():
     search_query = input('Please enter an employee name to search for: ')
     entries = Log.select().where((Log.first_name.contains(search_query)) |
                                  (Log.last_name.contains(search_query)))
-    view_entries(entries)
+    display_entries(entries)
 
 
 def search_by_date():
@@ -82,7 +81,7 @@ def search_by_date():
     search_query = input(
         'Please enter a date to search for (format YYYY-MM-DD): ')
     entries = Log.select().where(Log.timestamp.contains(search_query))
-    view_entries(entries)
+    display_entries(entries)
 
 
 def search_by_term():
@@ -91,7 +90,7 @@ def search_by_term():
     search_query = input('Please enter a term to search for: ')
     entries = Log.select().where((Log.task_name.contains(search_query)) |
                                  (Log.notes.contains(search_query)))
-    view_entries(entries)
+    display_entries(entries)
 
 
 def search_by_time_spent():
@@ -100,7 +99,7 @@ def search_by_time_spent():
     search_query = int(input(
         'Please enter an amount of time spent to search for: ').strip())
     entries = Log.select().where(Log.time_spent == search_query)
-    view_entries(entries)
+    display_entries(entries)
 
 
 def add_entry():
@@ -112,8 +111,11 @@ def add_entry():
     task_time = input("Enter the time spent completing this task: ")
     task_notes = input("Enter any additional notes: ")
 
-    Log.create(task_name=name, first_name=user_fname,
-               last_name=user_lname, time_spent=task_time, notes=task_notes)
+    Log.create(task_name=name,
+               first_name=user_fname,
+               last_name=user_lname,
+               time_spent=task_time,
+               notes=task_notes)
 
     clear()
     input('Entry Saved Successfully [press enter to continue]')
