@@ -23,9 +23,9 @@ class Log(BaseModel):
     task_name = CharField(max_length=255)
     first_name = CharField(max_length=255)
     last_name = CharField(max_length=255)
-    time_spent = IntegerField()
+    time_spent = IntegerField(default=0)
     notes = TextField()
-    timestamp = DateTimeField(default=datetime.datetime.now())
+    timestamp = DateTimeField(default=datetime.datetime.now)
 
 
 class Worklog:
@@ -48,7 +48,7 @@ def view_entries(entries):
         clear()
         fullname = '{} {}'.format(entry.first_name, entry.last_name)
 
-        print('Date: {}'.format(entry.timestamp.date()))
+        print(entry.timestamp.strftime('%A %B %d, %Y %I:%M%p'))
         print('=' * 20)
         print('Task Name: {}\n'
               'Employee Name:{}\n'
@@ -79,9 +79,9 @@ def search_by_employee():
 def search_by_date():
     '''Search by Date'''
 
-    search_query = input('Please enter a date to search for: ')
-    entries = Log.select().where(
-        datetime.date.fromtimestamp(Log.timestamp) == search_query)
+    search_query = input(
+        'Please enter a date to search for (format YYYY-MM-DD): ')
+    entries = Log.select().where(Log.timestamp.contains(search_query))
     view_entries(entries)
 
 
@@ -97,9 +97,9 @@ def search_by_term():
 def search_by_time_spent():
     '''Search by Time Spent'''
 
-    search_query = input(
-        'Please enter an amount of time spent to search for: ')
-    entries = Log.select().where(Log.time_spent.contains(search_query))
+    search_query = int(input(
+        'Please enter an amount of time spent to search for: ').strip())
+    entries = Log.select().where(Log.time_spent == search_query)
     view_entries(entries)
 
 
