@@ -38,25 +38,11 @@ def clear():
 
 def search_entries():
     '''Search entries'''
-    view_entries()
+    menu_loop(menu=SEARCH_MENU)
 
 
-def view_entries(search_query=None, search_type=None):
+def view_entries(entries):
     '''View previous entries'''
-    entries = Log.select()
-
-    if search_type:
-        if search_type == 'employee':
-            entries = entries.where((Log.first_name.contains(search_query)) |
-                                    (Log.last_name.contains(search_query)))
-        elif search_type == 'date':
-            entries = entries.where(
-                Log.timestamp.date() == search_query)
-        elif search_type == 'time_spent':
-            entries = entries.where(Log.time_spent.contains(search_query))
-        elif search_type == 'term':
-            entries = entries.where((Log.task_name.contains(search_query)) |
-                                    (Log.notes.contains(search_query)))
 
     for entry in entries:
         clear()
@@ -84,21 +70,42 @@ def view_entries(search_query=None, search_type=None):
 def search_by_employee():
     '''Search by Employee'''
 
+    search_query = input('Please enter an employee name to search for: ')
+    entries = Log.select().where((Log.first_name.contains(search_query)) |
+                                 (Log.last_name.contains(search_query)))
+    view_entries(entries)
+
 
 def search_by_date():
     '''Search by Date'''
+
+    search_query = input('Please enter a date to search for: ')
+    entries = Log.select().where(
+        datetime.date.fromtimestamp(Log.timestamp) == search_query)
+    view_entries(entries)
 
 
 def search_by_term():
     '''Search by custom term'''
 
+    search_query = input('Please enter a term to search for: ')
+    entries = Log.select().where((Log.task_name.contains(search_query)) |
+                                 (Log.notes.contains(search_query)))
+    view_entries(entries)
+
 
 def search_by_time_spent():
     '''Search by Time Spent'''
 
+    search_query = input(
+        'Please enter an amount of time spent to search for: ')
+    entries = Log.select().where(Log.time_spent.contains(search_query))
+    view_entries(entries)
+
 
 def add_entry():
     '''Add Entry'''
+
     name = input("Enter a name for this task: ")
     user_fname = input("Enter your first name: ")
     user_lname = input("Enter your last name: ")
@@ -108,30 +115,8 @@ def add_entry():
     Log.create(task_name=name, first_name=user_fname,
                last_name=user_lname, time_spent=task_time, notes=task_notes)
 
-
-def menu_loop():
-    '''Show the main menu'''
-    choice = None
-    current_date = datetime.datetime.now()
-
-    while choice != 'q':
-        clear()
-        print(current_date.strftime('%A %B %d, %Y %I:%M%p'))
-        print('=' * 40)
-        for key, value in MAIN_MENU.items():
-            print('[{}] {}'.format(key, value.__doc__))
-        print('=' * 40)
-        choice = input(
-            'Please select an option \nor enter q to quit: ').lower().strip()
-
-        if choice in MAIN_MENU:
-            clear()
-            MAIN_MENU[choice]()
-
-
-def initialize():
-    db.connect()
-    db.create_tables([Log], safe=True)
+    clear()
+    input('Entry Saved Successfully [press enter to continue]')
 
 
 MAIN_MENU = OrderedDict([
@@ -145,6 +130,34 @@ SEARCH_MENU = OrderedDict([
     ('t', search_by_time_spent),
     ('m', search_by_term)
 ])
+
+
+def menu_loop(menu=MAIN_MENU):
+    '''Show the current menu'''
+
+    choice = None
+    current_date = datetime.datetime.now()
+    exit_menu = ('Please select an option \nor enter q to quit: ' if menu ==
+                 MAIN_MENU else 'Enter q to return the the main menu: ')
+
+    while choice != 'q':
+        clear()
+        print(current_date.strftime('%A %B %d, %Y %I:%M%p'))
+        print('=' * 40)
+        for key, value in menu.items():
+            print('[{}] {}'.format(key, value.__doc__))
+        print('=' * 40)
+        choice = input(exit_menu).lower().strip()
+
+        if choice in menu:
+            clear()
+            menu[choice]()
+
+
+def initialize():
+    db.connect()
+    db.create_tables([Log], safe=True)
+
 
 if __name__ == '__main__':
     initialize()
