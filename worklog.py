@@ -125,7 +125,8 @@ def search_by_time_spent():
     except ValueError:
         clear()
         input(
-            'Please enter a value number of time spent. [press enter to continue]')
+            'Please enter a value number of time spent.'
+            ' [press enter to continue]')
 
 
 def add_entry():
