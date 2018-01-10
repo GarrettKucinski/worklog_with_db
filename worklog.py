@@ -43,36 +43,45 @@ def search_entries():
 def display_entries(entries):
     '''View previous entries'''
 
-    for entry in entries:
-        clear()
-        fullname = '{} {}'.format(entry.first_name, entry.last_name)
-
-        print(entry.timestamp.strftime('%A %B %d, %Y %I:%M%p'))
-        print('=' * 20)
-        print('Task Name: {}\n'
-              'Employee Name:{}\n'
-              'Time Spent: {}\n'
-              'Notes: {}\n'.format(entry.task_name, fullname,
-                                   entry.time_spent, entry.notes))
-        print('=' * 20)
-        print('[n] Next Entry')
-        print('[d] Delete Entry')
-        print('[q] Main Menu')
-        print('=' * 20)
-        action = input('Please make a selection: ').lower().strip()
-
-        if action == 'q':
+    if entries:
+        for entry in entries:
             clear()
-            break
+            fullname = '{} {}'.format(entry.first_name, entry.last_name)
+
+            print(entry.timestamp.strftime('%A %B %d, %Y %I:%M%p'))
+            print('=' * 20)
+            print('Task Name: {}\n'
+                  'Employee Name:{}\n'
+                  'Time Spent: {}\n'
+                  'Notes: {}\n'.format(entry.task_name, fullname,
+                                       entry.time_spent, entry.notes))
+            print('=' * 20)
+            print('[n] Next Entry')
+            print('[q] Search Menu')
+            print('=' * 20)
+            action = input('Please make a selection: ').lower().strip()
+
+            if action == 'q':
+                clear()
+                break
+    else:
+        clear()
+        input('No results found. [press enter to continue]')
 
 
 def search_by_employee():
     '''Search by Employee'''
 
     search_query = input('Please enter an employee name to search for: ')
-    entries = Log.select().where((Log.first_name.contains(search_query)) |
-                                 (Log.last_name.contains(search_query)))
-    display_entries(entries)
+
+    if search_query == '':
+        clear()
+        input(
+            'You must enter a value to search by. [press enter to continue]')
+    else:
+        entries = Log.select().where((Log.first_name.contains(search_query)) |
+                                     (Log.last_name.contains(search_query)))
+        display_entries(entries)
 
 
 def search_by_date():
@@ -80,26 +89,43 @@ def search_by_date():
 
     search_query = input(
         'Please enter a date to search for (format YYYY-MM-DD): ')
-    entries = Log.select().where(Log.timestamp.contains(search_query))
-    display_entries(entries)
+    try:
+        datetime.datetime.strptime(search_query, '%Y-%m-%d')
+        entries = Log.select().where(Log.timestamp.contains(search_query))
+        display_entries(entries)
+    except ValueError:
+        clear()
+        input("You must enter a date in the format YYYY - MM - DD."
+              "[press enter to continue]")
 
 
 def search_by_term():
     '''Search by custom term'''
 
     search_query = input('Please enter a term to search for: ')
-    entries = Log.select().where((Log.task_name.contains(search_query)) |
-                                 (Log.notes.contains(search_query)))
-    display_entries(entries)
+
+    if search_query == '':
+        clear()
+        input(
+            'You must enter a value to search by. [press enter to continue]')
+    else:
+        entries = Log.select().where((Log.task_name.contains(search_query)) |
+                                     (Log.notes.contains(search_query)))
+        display_entries(entries)
 
 
 def search_by_time_spent():
     '''Search by Time Spent'''
 
-    search_query = int(input(
-        'Please enter an amount of time spent to search for: ').strip())
-    entries = Log.select().where(Log.time_spent == search_query)
-    display_entries(entries)
+    try:
+        search_query = int(input(
+            'Please enter an amount of time spent to search for: ').strip())
+        entries = Log.select().where(Log.time_spent == search_query)
+        display_entries(entries)
+    except ValueError:
+        clear()
+        input(
+            'Please enter a value number of time spent. [press enter to continue]')
 
 
 def add_entry():
