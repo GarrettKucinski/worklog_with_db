@@ -69,10 +69,8 @@ def display_entries(entries):
         input('No results found. [press enter to continue]')
 
 
-def search_by_employee():
+def search_by_employee(search_query=None):
     '''Search by Employee'''
-
-    search_query = input('Please enter an employee name to search for: ')
 
     if search_query == '':
         clear()
@@ -84,11 +82,9 @@ def search_by_employee():
         display_entries(entries)
 
 
-def search_by_date():
+def search_by_date(search_query=None):
     '''Search by Date'''
 
-    search_query = input(
-        'Please enter a date to search for (format YYYY-MM-DD): ')
     try:
         datetime.datetime.strptime(search_query, '%Y-%m-%d')
         entries = Log.select().where(Log.timestamp.contains(search_query))
@@ -99,10 +95,8 @@ def search_by_date():
               "[press enter to continue]")
 
 
-def search_by_term():
+def search_by_term(search_query=None):
     '''Search by custom term'''
-
-    search_query = input('Please enter a term to search for: ')
 
     if search_query == '':
         clear()
@@ -114,12 +108,11 @@ def search_by_term():
         display_entries(entries)
 
 
-def search_by_time_spent():
+def search_by_time_spent(search_query=None):
     '''Search by Time Spent'''
 
     try:
-        search_query = int(input(
-            'Please enter an amount of time spent to search for: ').strip())
+        int(search_query)
         entries = Log.select().where(Log.time_spent == search_query)
         display_entries(entries)
     except ValueError:
@@ -177,10 +170,29 @@ def menu_loop(menu=MAIN_MENU):
             print('[{}] {}'.format(key, value.__doc__))
         print('=' * 40)
         choice = input(exit_menu).lower().strip()
+        if menu == MAIN_MENU:
+            if choice in menu:
+                clear()
+                menu[choice]()
 
-        if choice in menu:
-            clear()
-            menu[choice]()
+        if menu == SEARCH_MENU:
+            if choice == 'e':
+                clear()
+                search_by_employee(search_query=input(
+                    'Please enter an employee name to search for: '))
+            elif choice == 'd':
+                clear()
+                search_by_date(search_query=input(
+                    'Please enter a date to search for (format YYYY-MM-DD): '))
+            elif choice == 't':
+                clear()
+                search_by_time_spent(search_query=input(
+                    'Please enter an amount of time spent to search for: '
+                    .strip()))
+            elif choice == 'm':
+                clear()
+                search_by_term(search_query=input(
+                    'Please enter a term to search for: '))
 
 
 def initialize():
