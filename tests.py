@@ -1,5 +1,6 @@
 import unittest
 import worklog
+import validation
 
 
 class DBSetupTest(unittest.TestCase):
@@ -7,46 +8,63 @@ class DBSetupTest(unittest.TestCase):
         assert worklog.Log.table_exists()
 
 
+class CreationTest(unittest.TestCase):
+
+    def test_bad_log_value(self):
+        with self.assertRaises(ValueError):
+            worklog.Log.create(task_name='This is a bad task',
+                               first_name='Garrett',
+                               last_name='Kucinski',
+                               time_spent='forty',
+                               notes='')
+
+
 class SearchTest(unittest.TestCase):
     def setUp(self):
         self.search_query = 'Garrett'
 
-    def test_bad_log_value(self):
-        name = 'This is a bad task'
-        user_fname = 'Garrett'
-        user_lname = 'Kucinski'
-        task_time = 'forty'
-        task_notes = ''
+    def test_date_validation(self):
+        self.assertFalse(validation.validate_date_input(
+            '02/20/1022'))
+        self.assertTrue(validation.validate_date_input(
+            '1022-01-30'))
 
-        with self.assertRaises(ValueError):
-            worklog.Log.create(task_name=name,
-                               first_name=user_fname,
-                               last_name=user_lname,
-                               time_spent=task_time,
-                               notes=task_notes)
+    def test_time_spent_validation(self):
+        self.assertFalse(validation.validate_valid_time_spent('hello'))
+        self.assertTrue(validation.validate_time_spent(40))
 
-    def test_bad_search_date(self):
-        self.assertFalse(worklog.search_by_date(search_query='02/20/1022'))
+    def test_search_input(self):
+        self.assertFalse(worklog.search_by_date('hello'))
+        self.assertTrue(worklog.search_by_date('1982-01-01'))
 
-    def test_bad_search_time_spent(self):
-        self.assertFalse(worklog.search_by_time_spent(
-            search_query='02/20/1022'))
+    def test_employee_search_input(self):
+        self.assertFalse(worklog.search_by_employee(''))
+        self.assertTrue(worklog.search_by_employee('Garrett'))
 
-    def test_bad_search_employee(self):
-        self.assertFalse(worklog.search_by_employee(search_query=''))
+    def test_time_spent_search_input(self):
+        self.assertFalse(worklog.search_by_time_spent('hello'))
+        self.assertTrue(worklog.search_by_time_spent('40'))
 
-    def test_bad_search_term(self):
-        self.assertFalse(worklog.search_by_date(search_query=''))
+    def test_term_search_input(self):
+        self.assertFalse(worklog.search_by_term(''))
+        self.assertTrue(worklog.search_by_term('this'))
 
 
 class MenuTest(unittest.TestCase):
-    def setUp(self):
-        self.main_menu_choice_a = worklog.add_entry
-        self.main_menu_choice_s = worklog.search_entries
 
-    def test_main_menu_choice(self):
-        self.assertEqual(self.main_menu_choice_a, worklog.MAIN_MENU['a'])
-        self.assertEqual(self.main_menu_choice_s, worklog.MAIN_MENU['s'])
+    def test_menu_choice(self):
+        self.assertEqual(worklog.MAIN_MENU['a'], worklog.add_entry)
+        self.assertEqual(worklog.MAIN_MENU['s'], worklog.search_entries)
+
+    def test_search_function(self):
+        self.assertEqual(worklog.search_entries(), menu_loop)
+
+    def test_menu(self):
+        self.assertTrue(menu_loop(menu=worklog.MAIN_MENU))
+
+    def test_menu_loop_choice(self):
+        worklog.menu_loop(menu=worklog.MAIN_MENU)
+        self.assertTrue(choice='a')
 
 
 if __name__ == "__main__":

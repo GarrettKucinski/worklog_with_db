@@ -7,6 +7,8 @@ import sys
 
 from collections import OrderedDict
 
+import validation
+
 db = SqliteDatabase('worklog.db')
 
 
@@ -69,7 +71,7 @@ def display_entries(entries):
         input('No results found. [press enter to continue]')
 
 
-def search_by_employee(search_query=None):
+def search_by_employee(search_query):
     '''Search by Employee'''
 
     if search_query == '':
@@ -82,20 +84,19 @@ def search_by_employee(search_query=None):
         display_entries(entries)
 
 
-def search_by_date(search_query=None):
+def search_by_date(search_query):
     '''Search by Date'''
 
-    try:
-        datetime.datetime.strptime(search_query, '%Y-%m-%d')
+    if validation.validate_date_input(search_query):
         entries = Log.select().where(Log.timestamp.contains(search_query))
         display_entries(entries)
-    except ValueError:
+    else:
         clear()
         input("You must enter a date in the format YYYY - MM - DD."
               "[press enter to continue]")
 
 
-def search_by_term(search_query=None):
+def search_by_term(search_query):
     '''Search by custom term'''
 
     if search_query == '':
@@ -108,14 +109,13 @@ def search_by_term(search_query=None):
         display_entries(entries)
 
 
-def search_by_time_spent(search_query=None):
+def search_by_time_spent(search_query):
     '''Search by Time Spent'''
 
-    try:
-        int(search_query)
+    if validation.validate_time_spent(search_query):
         entries = Log.select().where(Log.time_spent == search_query)
         display_entries(entries)
-    except ValueError:
+    else:
         clear()
         input(
             'Please enter a value number of time spent.'
