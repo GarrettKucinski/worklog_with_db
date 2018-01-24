@@ -9,7 +9,6 @@ class DBSetupTest(unittest.TestCase):
 
 
 class CreationTest(unittest.TestCase):
-
     def test_bad_log_value(self):
         with self.assertRaises(ValueError):
             worklog.Log.create(task_name='This is a bad task',
@@ -19,10 +18,7 @@ class CreationTest(unittest.TestCase):
                                notes='')
 
 
-class SearchTest(unittest.TestCase):
-    def setUp(self):
-        self.search_query = 'Garrett'
-
+class ValidationTest(unittest.TestCase):
     def test_date_validation(self):
         self.assertFalse(validation.validate_date_input(
             '02/20/1022'))
