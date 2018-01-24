@@ -30,41 +30,25 @@ class SearchTest(unittest.TestCase):
             '1022-01-30'))
 
     def test_time_spent_validation(self):
-        self.assertFalse(validation.validate_valid_time_spent('hello'))
+        self.assertFalse(validation.validate_time_spent('hello'))
         self.assertTrue(validation.validate_time_spent(40))
-
-    def test_search_input(self):
-        self.assertFalse(worklog.search_by_date('hello'))
-        self.assertTrue(worklog.search_by_date('1982-01-01'))
-
-    def test_employee_search_input(self):
-        self.assertFalse(worklog.search_by_employee(''))
-        self.assertTrue(worklog.search_by_employee('Garrett'))
-
-    def test_time_spent_search_input(self):
-        self.assertFalse(worklog.search_by_time_spent('hello'))
-        self.assertTrue(worklog.search_by_time_spent('40'))
-
-    def test_term_search_input(self):
-        self.assertFalse(worklog.search_by_term(''))
-        self.assertTrue(worklog.search_by_term('this'))
 
 
 class MenuTest(unittest.TestCase):
+    def setUp(self):
+        self.menu = {'a': 'This is choice a', 'b': 'This is choice b'}
 
     def test_menu_choice(self):
-        self.assertEqual(worklog.MAIN_MENU['a'], worklog.add_entry)
-        self.assertEqual(worklog.MAIN_MENU['s'], worklog.search_entries)
+        self.assertEqual(self.menu['a'], 'This is choice a')
+        self.assertEqual(self.menu['b'], 'This is choice b')
 
-    def test_search_function(self):
-        self.assertEqual(worklog.search_entries(), menu_loop)
+    def test_get_user_choice(self):
+        self.assertEqual('a', worklog.get_user_choice('a'))
 
-    def test_menu(self):
-        self.assertTrue(menu_loop(menu=worklog.MAIN_MENU))
-
-    def test_menu_loop_choice(self):
-        worklog.menu_loop(menu=worklog.MAIN_MENU)
-        self.assertTrue(choice='a')
+    def test_validate_menu_choice(self):
+        self.assertTrue(worklog.validate_menu_choice('a', self.menu))
+        self.assertTrue(worklog.validate_menu_choice('b', self.menu))
+        self.assertFalse(worklog.validate_menu_choice('c', self.menu))
 
 
 if __name__ == "__main__":

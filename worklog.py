@@ -36,10 +36,24 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def quit_program():
+    '''Quit'''
+    sys.exit()
+
+
 def search_entries():
     '''Search entries'''
+    while True:
+        clear()
+        print_menu(menu=SEARCH_MENU)
+        print("Press [R] to return to the main menu.")
+        choice = get_user_choice()
 
-    menu_loop(menu=SEARCH_MENU)
+        if choice:
+            if choice == 'r':
+                break
+
+            execute_menu_selection(choice, menu=SEARCH_MENU)
 
 
 def display_entries(entries):
@@ -71,8 +85,10 @@ def display_entries(entries):
         input('No results found. [press enter to continue]')
 
 
-def search_by_employee(search_query):
+def search_by_employee():
     '''Search by Employee'''
+
+    search_query = input('Please enter an employee name to search for: ')
 
     if search_query == '':
         clear()
@@ -84,8 +100,11 @@ def search_by_employee(search_query):
         display_entries(entries)
 
 
-def search_by_date(search_query):
+def search_by_date():
     '''Search by Date'''
+
+    search_query = input(
+        'Please enter a date to search for (format YYYY-MM-DD): ')
 
     if validation.validate_date_input(search_query):
         entries = Log.select().where(Log.timestamp.contains(search_query))
@@ -96,8 +115,10 @@ def search_by_date(search_query):
               "[press enter to continue]")
 
 
-def search_by_term(search_query):
+def search_by_term():
     '''Search by custom term'''
+
+    search_query = input('Please enter a term to search for: ')
 
     if search_query == '':
         clear()
@@ -109,8 +130,12 @@ def search_by_term(search_query):
         display_entries(entries)
 
 
-def search_by_time_spent(search_query):
+def search_by_time_spent():
     '''Search by Time Spent'''
+
+    search_query = input(
+        'Please enter an amount of time spent to search for: '
+        .strip())
 
     if validation.validate_time_spent(search_query):
         entries = Log.select().where(Log.time_spent == search_query)
@@ -141,58 +166,60 @@ def add_entry():
     input('Entry Saved Successfully [press enter to continue]')
 
 
+def print_menu(menu):
+    current_date = datetime.datetime.now()
+
+    print(current_date.strftime('%A %B %d, %Y %I:%M%p'))
+    print('=' * 40)
+    for key, value in menu.items():
+        print('[{}] {}'.format(key, value.__doc__))
+    print('=' * 40)
+
+
+def get_user_choice(choice=''):
+    if not choice:
+        choice = input("Please select a menu option: ")
+
+    return choice
+
+
+def validate_menu_choice(choice, menu):
+    if choice in menu or choice == 'r':
+        return True
+
+    return False
+
+
+def execute_menu_selection(choice='', menu=OrderedDict()):
+    if validate_menu_choice(choice, menu):
+        menu[choice]()
+    else:
+        clear()
+        print("ERROR: Oops, that doesn't seem to be a valid menu option."
+              "Try again.\n")
+
+
 MAIN_MENU = OrderedDict([
     ('a', add_entry),
-    ('s', search_entries)
+    ('s', search_entries),
+    ('q', quit_program)
 ])
 
 SEARCH_MENU = OrderedDict([
     ('e', search_by_employee),
     ('d', search_by_date),
     ('t', search_by_time_spent),
-    ('m', search_by_term)
+    ('m', search_by_term),
 ])
 
 
-def menu_loop(menu=MAIN_MENU):
+def menu_loop():
     '''Show the current menu'''
 
-    choice = None
-    current_date = datetime.datetime.now()
-    exit_menu = ('Please select an option \nor enter q to quit: ' if menu ==
-                 MAIN_MENU else 'Enter q to return the the main menu: ')
-
-    while choice != 'q':
+    while True:
         clear()
-        print(current_date.strftime('%A %B %d, %Y %I:%M%p'))
-        print('=' * 40)
-        for key, value in menu.items():
-            print('[{}] {}'.format(key, value.__doc__))
-        print('=' * 40)
-        choice = input(exit_menu).lower().strip()
-        if menu == MAIN_MENU:
-            if choice in menu:
-                clear()
-                menu[choice]()
-
-        if menu == SEARCH_MENU:
-            if choice == 'e':
-                clear()
-                search_by_employee(search_query=input(
-                    'Please enter an employee name to search for: '))
-            elif choice == 'd':
-                clear()
-                search_by_date(search_query=input(
-                    'Please enter a date to search for (format YYYY-MM-DD): '))
-            elif choice == 't':
-                clear()
-                search_by_time_spent(search_query=input(
-                    'Please enter an amount of time spent to search for: '
-                    .strip()))
-            elif choice == 'm':
-                clear()
-                search_by_term(search_query=input(
-                    'Please enter a term to search for: '))
+        print_menu(menu=MAIN_MENU)
+        execute_menu_selection(get_user_choice(), menu=MAIN_MENU)
 
 
 def initialize():
