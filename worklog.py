@@ -47,6 +47,7 @@ def search_entries():
         clear()
         print_menu(menu=SEARCH_MENU)
         print("Press [R] to return to the main menu.")
+        print('=' * 40)
         choice = get_user_choice()
 
         if choice:
@@ -116,7 +117,7 @@ def search_by_date():
 
 
 def search_by_term():
-    '''Search by custom term'''
+    '''Search by Custom Term'''
 
     search_query = input('Please enter a term to search for: ')
 
@@ -192,6 +193,7 @@ def validate_menu_choice(choice, menu):
 
 def execute_menu_selection(choice='', menu=OrderedDict()):
     if validate_menu_choice(choice, menu):
+        clear()
         menu[choice]()
     else:
         clear()
